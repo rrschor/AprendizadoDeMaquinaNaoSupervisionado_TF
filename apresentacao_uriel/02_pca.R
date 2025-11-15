@@ -1,6 +1,7 @@
 # ==============================================================================
 # PCA - ANÁLISE DE COMPONENTES PRINCIPAIS
 # ==============================================================================
+# Fonte: IF.data (BCB) - Março/2025 - 1,055 bancos brasileiros
 # Objetivo: Decomposição de variância, escolha de M componentes, interpretação
 # Dependência: Executar df_banco.R primeiro
 # Outputs: Tabelas, gráficos e escores em outputs/
@@ -136,4 +137,3 @@ for(i in 1:min(M, 4)) {
 
 cat("\n=== PCA CONCLUÍDA ===\n")
 cat("Outputs salvos em: apresentacao_uriel/outputs/02_*.{csv,pdf}\n")
-cat("\nPróximo passo: Revisar CHECKPOINT 2 em PLANO_EXECUCAO.md\n")

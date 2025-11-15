@@ -1,6 +1,7 @@
 # ==============================================================================
 # EFA - ANÁLISE FATORIAL EXPLORATÓRIA
 # ==============================================================================
+# Fonte: IF.data (BCB) - Março/2025 - 1,055 bancos brasileiros
 # Objetivo: Estimar fatores latentes, escolher m fatores, rotação, escores
 # Dependência: Executar df_banco.R primeiro
 # Outputs: Tabelas de cargas, comunalidades, escores em outputs/
@@ -186,4 +187,3 @@ for(i in 1:m_escolhido) {
 
 cat("\n=== EFA CONCLUÍDA ===\n")
 cat("Outputs salvos em: apresentacao_uriel/outputs/03_*.{csv,pdf}\n")
-cat("\nPróximo passo: Revisar CHECKPOINT 3 em PLANO_EXECUCAO.md\n")

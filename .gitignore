@@ -51,3 +51,6 @@ Rplots.pdf
 # Outputs (CSVs são intermediários, manter PDFs)
 apresentacao_uriel/outputs/*.csv
 apresentacao_uriel/outputs/*.md
+
+# Docs folder (plans are generated, not part of deliverables)
+docs/

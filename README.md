@@ -132,10 +132,6 @@ source("apresentacao_uriel/df_banco.R")
 │       ├── 02_*.{csv,pdf}                 # PCA (7 arquivos)
 │       ├── 03_*.{csv,pdf}                 # EFA (8 arquivos)
 │       ├── 04_*.{csv,pdf}                 # Clustering (13 arquivos)
-│       ├── CHECKPOINT_1_decisoes.md       # Decisões: outliers, correlações
-│       ├── CHECKPOINT_2_decisoes.md       # Decisões: M componentes PCA
-│       ├── CHECKPOINT_3_decisoes.md       # Decisões: m fatores, PCA vs EFA
-│       └── CHECKPOINT_4_decisoes.md       # Decisões: K clusters, validação
 ├── docs/
 │   └── plans/                             # Planos de implementação
 ├── DATA_SOURCE.md                         # Documentação da fonte de dados

@@ -71,6 +71,9 @@ df_limpo <- dados |>
   mutate(indice_de_basileia = indice_de_basileia/100,
          indice_de_imobilizacao = indice_de_imobilizacao/100)
 
+# IMPORTANTE: Guardar nomes dos bancos para clustering
+bancos <- dados$instituicao
+
 cor_mat <- cor(df_limpo)
 corrplot(cor_mat, method = "color", type = "upper", tl.col = "black",
          addCoef.col = "black", number.cex = 0.65, tl.cex = 0.8)
@@ -91,10 +94,16 @@ kable(pca_var[1:4, ], digits = 2, caption = "Primeiras 4 Componentes")
 
 ---
 
-## PCA - Scree Plot {.flexbox .vcenter}
+## PCA - Scree Plot
 
-```{r scree, out.width="75%", fig.align='center'}
-knitr::include_graphics("outputs/02_scree_plot.pdf")
+```{r scree, fig.width=9, fig.height=5.5}
+# Carregar dados e executar PCA inline
+df_limpo_padro <- scale(df_limpo)
+pca_result <- prcomp(df_limpo_padro, scale. = FALSE)
+
+library(factoextra)
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 50),
+         main = "Scree Plot - Escolha de Componentes")
 ```
 
 ---
@@ -113,10 +122,15 @@ knitr::include_graphics("outputs/02_scree_plot.pdf")
 
 ---
 
-## PCA - Biplot {.flexbox .vcenter}
+## PCA - Biplot
 
-```{r biplot, out.width="80%"}
-knitr::include_graphics("outputs/02_biplot.pdf")
+```{r biplot, fig.width=11, fig.height=5.5}
+fviz_pca_biplot(pca_result,
+                repel = TRUE,
+                col.var = "contrib",
+                gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                col.ind = "gray",
+                title = "Biplot PCA - PC1 vs PC2")
 ```
 
 ---
@@ -135,10 +149,14 @@ kable(adequacao, digits = 3)
 
 ---
 
-## EFA - Número de Fatores {.flexbox .vcenter}
+## EFA - Número de Fatores
 
-```{r parallel_plot, out.width="70%"}
-knitr::include_graphics("outputs/03_parallel_analysis.pdf")
+```{r parallel_plot, fig.width=9, fig.height=5.5}
+# Análise paralela inline
+library(psych)
+library(GPArotation)
+parallel_efa <- fa.parallel(df_limpo_padro, fa = "fa", n.iter = 100,
+                             main = "Análise Paralela - Escolha de m Fatores")
 ```
 
 **Análise paralela sugere**: m = 3
@@ -186,10 +204,36 @@ kable(sil[1:5, ], digits = 3)
 
 ---
 
-## Clustering - Big Five {.flexbox .vcenter}
+## Clustering - Big Five
 
-```{r big_five, out.width="85%"}
-knitr::include_graphics("outputs/04_kmeans_classico_nomes.pdf")
+```{r big_five, fig.width=13, fig.height=5.5}
+# K-Means inline (usando PCA já calculado)
+library(cluster)
+dados_clustering <- pca_result$x[, 1:2]
+set.seed(123)
+kmeans_result <- kmeans(dados_clustering, centers = 2, nstart = 25)
+
+# Plot Big Five
+pca_df <- data.frame(
+  PC1 = dados_clustering[, 1],
+  PC2 = dados_clustering[, 2],
+  Cluster = factor(kmeans_result$cluster, levels = c(1, 2),
+                   labels = c("Demais", "Big 5")),
+  Banco = bancos
+)
+
+big5_df <- pca_df[pca_df$Cluster == "Big 5", ]
+
+ggplot(pca_df, aes(x = PC1, y = PC2, color = Cluster, shape = Cluster)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  geom_text(data = big5_df,
+            aes(label = gsub(" - PRUDENCIAL", "", Banco)),
+            vjust = -1, size = 4.5, fontface = "bold", show.legend = FALSE) +
+  scale_color_manual(values = c("Demais" = "#00BFC4", "Big 5" = "#F8766D")) +
+  scale_shape_manual(values = c(16, 17)) +
+  theme_minimal(base_size = 13) +
+  labs(title = "K-Means: Identificação dos Big Five",
+       x = "PC1 - Tamanho (66.4%)", y = "PC2 - Solidez (13.6%)")
 ```
 
 ---
@@ -230,11 +274,19 @@ knitr::include_graphics("outputs/04_kmeans_classico_nomes.pdf")
 
 ---
 
-## K=5 Clusters - Estrutura Detalhada {.flexbox .vcenter}
+## K=5 Clusters - Estrutura Detalhada
 
-```{r k5_plot, out.width="90%"}
-knitr::include_graphics("outputs/07_kmeans_K5.pdf")
-```
+<div style="font-size: 0.8em;">
+**Análise sem Big 7 revelou 5 camadas distintas:**
+
+- **Vermelho** (8): Middle Top - C6, XP, Safra
+- **Verde** (33): Middle Amplo - Regionais, cooperativas
+- **Roxo** (257): Pequenos alavancados - SCDs, Basel 12%
+- **Laranja** (747): Pequenos conservadores - Cooperativas, Basel 71%
+- **Azul** (1): Outlier (CREFISA)
+
+Ver `outputs/07_kmeans_K5.pdf` para visualização completa
+</div>
 
 ---
 

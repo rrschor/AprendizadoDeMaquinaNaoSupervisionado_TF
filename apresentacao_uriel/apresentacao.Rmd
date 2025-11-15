@@ -1,0 +1,404 @@
+---
+title: "Análise de Dados Bancários Brasileiros"
+subtitle: "PCA, EFA e Clustering"
+author: "André Soares, Luciana Otavia, Roberto Schor"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: false
+    logo: NULL
+    css: custom.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+                      fig.width = 10, fig.height = 5.5, fig.align = "center")
+library(tidyverse)
+library(knitr)
+library(corrplot)
+```
+
+## Objetivos
+
+**Analisar estrutura multivariada do setor bancário brasileiro**
+
+Aplicando técnicas de aprendizado não supervisionado:
+
+- **PCA**: Redução de dimensionalidade
+- **EFA**: Fatores latentes
+- **Clustering**: Tipologias de bancos
+
+**Métodos**: K-Means | Clustering Hierárquico | Validação Cruzada
+
+---
+
+## Dados
+
+**Fonte**: IF.data (Banco Central do Brasil) - Março/2025
+
+**Amostra**: **1,055 bancos** brasileiros
+
+**Variáveis** (p=8):
+
+- Financeiras: Ativo Total, Carteira de Crédito, Patrimônio, Lucro
+- Regulatórias: Índice de Basileia, Índice de Imobilização
+- Operacionais: Número de Agências, Postos de Atendimento
+
+**Pré-processamento**: Padronização Z-scores (média=0, dp=1)
+
+---
+
+## Análise Descritiva {.smaller}
+
+```{r corrplot, fig.width=8, fig.height=7}
+# Carregar dados
+library(janitor)
+dados <- read_csv2("dados.csv",
+  locale = locale(decimal_mark = ",", grouping_mark = ".")) |>
+  clean_names() |> select(-x22) |>
+  filter(if_all(everything(), ~ . != "NI")) |>
+  mutate(across(c(ativo_total, carteira_de_credito, patrimonio_liquido, lucro_liquido,
+        indice_de_basileia, indice_de_imobilizacao,
+        numero_de_agencias, numero_de_postos_de_atendimento),
+      ~ as.numeric(gsub(",", ".", gsub("%", "", gsub("\\.", "", .)))))) |>
+  na.omit()
+
+df_limpo <- dados |>
+  select(ativo_total, carteira_de_credito, patrimonio_liquido, lucro_liquido,
+         indice_de_basileia, indice_de_imobilizacao,
+         numero_de_agencias, numero_de_postos_de_atendimento) |>
+  mutate(indice_de_basileia = indice_de_basileia/100,
+         indice_de_imobilizacao = indice_de_imobilizacao/100)
+
+# IMPORTANTE: Guardar nomes dos bancos para clustering
+bancos <- dados$instituicao
+
+cor_mat <- cor(df_limpo)
+corrplot(cor_mat, method = "color", type = "upper", tl.col = "black",
+         addCoef.col = "black", number.cex = 0.65, tl.cex = 0.8)
+```
+
+**14 correlações fortes** (|r| > 0.7) → Justifica redução dimensional
+
+---
+
+## PCA - Decomposição de Variância
+
+```{r pca_table}
+pca_var <- read_csv("outputs/02_pca_variancia.csv", show_col_types = FALSE)
+kable(pca_var[1:4, ], digits = 2, caption = "Primeiras 4 Componentes")
+```
+
+**Decisão**: M = **2 componentes** (80% variância)
+
+---
+
+## PCA - Scree Plot
+
+```{r scree, fig.width=9, fig.height=5.5}
+# Carregar dados e executar PCA inline
+df_limpo_padro <- scale(df_limpo)
+pca_result <- prcomp(df_limpo_padro, scale. = FALSE)
+
+library(factoextra)
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 50),
+         main = "Scree Plot - Escolha de Componentes")
+```
+
+---
+
+## PCA - Interpretação
+
+**PC1 (66.4%)**: "Tamanho do Banco"
+- Todas variáveis financeiras/operacionais (~-0.43)
+- Captura dimensão geral de escala
+
+**PC2 (13.6%)**: "Solidez Regulatória"
+- Basileia: +0.72 (bem capitalizado)
+- Imobilização: -0.70 (baixa infraestrutura fixa)
+
+**Variância retida**: 80.0%
+
+---
+
+## PCA - Biplot
+
+```{r biplot, fig.width=11, fig.height=5.5}
+fviz_pca_biplot(pca_result,
+                repel = TRUE,
+                col.var = "contrib",
+                gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                col.ind = "gray",
+                title = "Biplot PCA - PC1 vs PC2")
+```
+
+---
+
+## EFA - Adequação
+
+```{r efa_adequacao}
+adequacao <- read_csv("outputs/03_adequacao.csv", show_col_types = FALSE)
+kable(adequacao, digits = 3)
+```
+
+- **KMO = 0.796**: Adequado (>0.7)
+- **Bartlett p < 0.001**: Significativo ✓
+
+**Dados adequados para EFA**
+
+---
+
+## EFA - Número de Fatores
+
+```{r parallel_plot, fig.width=9, fig.height=5.5}
+# Análise paralela inline
+library(psych)
+library(GPArotation)
+parallel_efa <- fa.parallel(df_limpo_padro, fa = "fa", n.iter = 100,
+                             main = "Análise Paralela - Escolha de m Fatores")
+```
+
+**Análise paralela sugere**: m = 3
+**Decisão**: m = **2 fatores** (Fator 3 explica apenas 0.9%)
+
+---
+
+## EFA - Interpretação dos Fatores
+
+**Fator 1 (35.7%)**: "Escala Operacional"
+- Agências: **0.915** (dominante)
+- Tamanho financeiro, rede física
+
+**Fator 2 (32.8%)**: "Performance Financeira"
+- Lucro: **0.846** (dominante)
+- Patrimônio, solidez
+
+**Variância explicada**: 68.5% (comum)
+
+---
+
+## PCA vs EFA - Comparação
+
+| Aspecto | PCA | EFA |
+|---------|-----|-----|
+| **Dimensões** | M = 2 | m = 2 |
+| **Variância** | 80% | 68% |
+| **PC1/F1** | Tamanho geral | Escala física |
+| **PC2/F2** | Índices regulatórios | Performance |
+
+**Convergência**: 85% (alta)
+
+**Achado**: Índices regulatórios têm h² ≈ 0% (variância específica!)
+
+---
+
+## Clustering - Dataset Completo
+
+```{r silhueta_completo}
+sil <- read_csv("outputs/04_silhueta.csv", show_col_types = FALSE)
+kable(sil[1:5, ], digits = 3)
+```
+
+**Decisão**: K = **2 clusters** (Silhueta 0.972 - excepcional!)
+
+---
+
+## Clustering - Big Five
+
+```{r big_five, fig.width=13, fig.height=5.5}
+# K-Means inline (usando PCA já calculado)
+library(cluster)
+dados_clustering <- pca_result$x[, 1:2]
+set.seed(123)
+kmeans_result <- kmeans(dados_clustering, centers = 2, nstart = 25)
+
+# Plot Big Five
+pca_df <- data.frame(
+  PC1 = dados_clustering[, 1],
+  PC2 = dados_clustering[, 2],
+  Cluster = factor(kmeans_result$cluster, levels = c(1, 2),
+                   labels = c("Demais", "Big 5")),
+  Banco = bancos
+)
+
+big5_df <- pca_df[pca_df$Cluster == "Big 5", ]
+
+ggplot(pca_df, aes(x = PC1, y = PC2, color = Cluster, shape = Cluster)) +
+  geom_point(size = 2.5, alpha = 0.7) +
+  geom_text(data = big5_df,
+            aes(label = gsub(" - PRUDENCIAL", "", Banco)),
+            vjust = -1, size = 4.5, fontface = "bold", show.legend = FALSE) +
+  scale_color_manual(values = c("Demais" = "#00BFC4", "Big 5" = "#F8766D")) +
+  scale_shape_manual(values = c(16, 17)) +
+  theme_minimal(base_size = 13) +
+  labs(title = "K-Means: Identificação dos Big Five",
+       x = "PC1 - Tamanho (66.4%)", y = "PC2 - Solidez (13.6%)")
+```
+
+---
+
+## Caracterização dos Clusters
+
+**Cluster 1**: "Demais Bancos" (N=1,050 - 99.5%)
+- Ativo médio: R$ 5.5 milhões
+- Basileia: 60% (conservadores)
+- Agências: 2.5
+
+**Cluster 2**: "Big Five" (N=5 - 0.5%)
+- **BB, Bradesco, Caixa, Itaú, Santander**
+- Ativo médio: R$ 1.99 bilhões
+- **361x maiores** que Cluster 1!
+- Basileia: 15% (alavancados)
+- Agências: 2,800
+
+---
+
+## Validação do Clustering
+
+**Silhueta**: 0.972 (extremamente rara na prática)
+
+**K-Means vs Hierárquico**: 100% concordância
+
+**Validação prática**: Identificou perfeitamente os 5 maiores bancos do Brasil **automaticamente**
+
+---
+
+## Análise Sem Outliers (N=1,046)
+
+**Motivação**: Big 5 mascaram estrutura interna
+
+**Removidos**: 9 outliers (Big 5 + BNDES + BTG + 2 extremos)
+
+**Resultado**: Estrutura em **5 camadas** revelada!
+
+---
+
+## K=5 Clusters - Estrutura Detalhada
+
+<div style="font-size: 0.8em;">
+**Análise sem Big 7 revelou 5 camadas distintas:**
+
+- **Vermelho** (8): Middle Top - C6, XP, Safra
+- **Verde** (33): Middle Amplo - Regionais, cooperativas
+- **Roxo** (257): Pequenos alavancados - SCDs, Basel 12%
+- **Laranja** (747): Pequenos conservadores - Cooperativas, Basel 71%
+- **Azul** (1): Outlier (CREFISA)
+
+Ver `outputs/07_kmeans_K5.pdf` para visualização completa
+</div>
+
+---
+
+## Os 5 Clusters (sem outliers) {.smaller}
+
+**C1** (N=8, 0.8%): **Middle Market Top**
+- C6, XP, Safra, Votorantim, Banrisul, BNE
+- Ativo: R$ 161 Mi | Agências: 141 | Basileia: 15%
+
+**C2** (N=1): Outlier operacional (CREFISA - 1,062 postos!)
+
+**C3** (N=33, 3.2%): **Middle Market Amplo**
+- Regionais, cooperativas grandes, montadoras
+- Ativo: R$ 46 Mi | Agências: 22 | Basileia: 19%
+
+**C4** (N=257, 24.6%): **Pequenos Alavancados** 🚀
+- SCDs, fintechs digitais | Basileia: **12%** (agressivos!)
+
+**C5** (N=747, 71.4%): **Pequenos Conservadores** 🏛️
+- Cooperativas locais | Basileia: **71%** (muito conservadores!)
+
+---
+
+## Descoberta Principal {.build}
+
+**Bancos pequenos têm 2 filosofias opostas:**
+
+<div class="columns-2">
+**Cluster 4**: Alavancados
+- N = 257 bancos
+- Basileia: 12%
+- Agências: 0.4 (digitais!)
+- **Modelo**: Fintech/crescimento
+
+**Cluster 5**: Conservadores
+- N = 747 bancos
+- Basileia: **71%** (6x diferença!)
+- Agências: 0.8 (locais)
+- **Modelo**: Cooperativa/segurança
+</div>
+
+---
+
+## Estrutura Completa do Setor {.smaller}
+
+**Camada 1**: Big 5 (N=5, ~80% mercado)
+- BB, Bradesco, Caixa, Itaú, Santander
+
+**Camada 2**: Grandes Especializados (N=2)
+- BNDES, BTG Pactual
+
+**Camada 3**: Middle Top (N=8, ~10% mercado)
+- C6, XP, Safra, Votorantim, Regionais grandes
+
+**Camada 4**: Middle Amplo (N=33, ~5-8% mercado)
+- Cooperativas grandes, regionais médios, montadoras
+
+**Camada 5**: Pequenos Alavancados (N=257, ~1-2% mercado)
+- SCDs, fintechs digitais
+
+**Camada 6**: Pequenos Conservadores (N=747, ~1% mercado)
+- Cooperativas locais
+
+---
+
+## Conclusões Principais
+
+1. **Estrutura bidimensional robusta** (PCA e EFA convergem)
+   - Dimensão 1: Tamanho (66%)
+   - Dimensão 2: Solidez (14%)
+
+2. **Concentração extrema**
+   - 5 bancos = 80% do mercado
+   - Silhueta 0.972 (separação perfeita)
+
+3. **Índices regulatórios são ortogonais** (h² ≈ 0%)
+   - Risco ≠ Tamanho
+
+4. **Estrutura em 6 camadas** (análise sem outliers)
+   - Middle market: 41 bancos diversificados
+   - Pequenos divididos por filosofia de risco
+
+---
+
+## Aplicações
+
+**Regulação Diferenciada**:
+- Big 5: Supervisão sistêmica
+- Médios: Regime intermediário
+- Pequenos: Diferenciar alavancados vs conservadores
+
+**Benchmarking**:
+- Comparar com centróide do cluster apropriado
+- Big 5 não comparáveis com demais (escala 300x)
+
+**Política Pública**:
+- Quantificar concentração
+- Identificar middle market
+- Apoiar cooperativas locais
+
+---
+
+## Obrigado!
+
+**Perguntas?**
+
+<div style="margin-top: 50px; font-size: 0.8em; color: #666;">
+
+**Fonte**: IF.data (Banco Central do Brasil)
+
+**Análises**: PCA (M=2, 80% var.) | EFA (m=2, 68% var.) | K-Means (K=2/5)
+
+**Ferramentas**: R + tidyverse + psych + factoextra
+
+</div>

@@ -1,0 +1,60 @@
+# Exclude logs folder
+logs/
+
+# Exclude ai folders
+*.claude/
+*.docs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+*.cover
+.ipynb_checkpoints/
+.pyenv
+.venv
+venv/
+ENV/
+env/
+.env
+
+# R
+.Rhistory
+.RData
+.Rproj.user
+.Rproj
+*.Rproj
+.Ruserdata
+*.rds
+*.RDS
+.httr-oauth
+*_cache/
+/cache
+*.utf8.md
+*.knit.md
+Rplots.pdf
+
+# Outputs (CSVs são intermediários, manter PDFs)
+apresentacao_uriel/outputs/*.csv
+apresentacao_uriel/outputs/*.md
+
+# Docs folder (plans are generated, not part of deliverables)
+docs/
+
+# Project planning files (kept locally for reference)
+PLANO_EXECUCAO.md
+PROGRESSO.md

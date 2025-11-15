@@ -1,6 +1,10 @@
 # Exclude logs folder
 logs/
 
+# Exclude ai folders
+*.claude/
+*.docs/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -46,3 +50,4 @@ Rplots.pdf
 
 # Outputs (CSVs são intermediários, manter PDFs)
 apresentacao_uriel/outputs/*.csv
+apresentacao_uriel/outputs/*.md

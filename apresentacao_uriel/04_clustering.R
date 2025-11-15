@@ -222,4 +222,3 @@ dev.off()
 
 cat("\n=== CLUSTERING CONCLUÍDO ===\n")
 cat("Outputs salvos em: apresentacao_uriel/outputs/04_*.{csv,pdf}\n")
-cat("\nPróximo passo: Revisar CHECKPOINT 4 em PROGRESSO.md\n")

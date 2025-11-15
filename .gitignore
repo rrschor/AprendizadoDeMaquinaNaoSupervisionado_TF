@@ -54,3 +54,7 @@ apresentacao_uriel/outputs/*.md
 
 # Docs folder (plans are generated, not part of deliverables)
 docs/
+
+# Project planning files (kept locally for reference)
+PLANO_EXECUCAO.md
+PROGRESSO.md

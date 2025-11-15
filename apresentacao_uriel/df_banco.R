@@ -1,6 +1,11 @@
 # ==============================================================================
 # PREPARAÇÃO DE DADOS - ANÁLISE BANCÁRIA
 # ==============================================================================
+# Fonte: IF.data - Sistema de Informações Financeiras (Banco Central do Brasil)
+#        https://www3.bcb.gov.br/ifdata/
+# Período: Março/2025
+# Instituições: 1,055 bancos (de 1,414 após limpeza)
+#
 # Objetivo: Limpar, transformar e padronizar dados bancários para análises
 # Outputs: df_bancos (limpo), df_limpo (reduzido), df_limpo_padro (Z-scores)
 # ==============================================================================

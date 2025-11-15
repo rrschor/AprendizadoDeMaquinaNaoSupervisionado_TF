@@ -1,6 +1,7 @@
 # ==============================================================================
 # ANÁLISE DESCRITIVA - DADOS BANCÁRIOS
 # ==============================================================================
+# Fonte: IF.data (BCB) - Março/2025 - 1,055 bancos brasileiros
 # Objetivo: Estatísticas sumárias, visualizações, matrizes de variabilidade
 # Dependência: Executar df_banco.R primeiro
 # Outputs: Tabelas e gráficos em outputs/
@@ -139,4 +140,3 @@ write_csv(cor_fortes, "apresentacao_uriel/outputs/01_correlacoes_fortes.csv")
 
 cat("\n=== ANÁLISE DESCRITIVA CONCLUÍDA ===\n")
 cat("Outputs salvos em: apresentacao_uriel/outputs/01_*.{csv,pdf}\n")
-cat("\nPróximo passo: Revisar CHECKPOINT 1 em PLANO_EXECUCAO.md\n")

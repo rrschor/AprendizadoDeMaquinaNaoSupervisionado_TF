@@ -132,8 +132,6 @@ source("apresentacao_uriel/df_banco.R")
 │       ├── 02_*.{csv,pdf}                 # PCA (7 arquivos)
 │       ├── 03_*.{csv,pdf}                 # EFA (8 arquivos)
 │       ├── 04_*.{csv,pdf}                 # Clustering (13 arquivos)
-├── docs/
-│   └── plans/                             # Planos de implementação
 ├── DATA_SOURCE.md                         # Documentação da fonte de dados
 ├── PLANO_EXECUCAO.md                      # Plano conceitual
 ├── PROGRESSO.md                           # Status do projeto

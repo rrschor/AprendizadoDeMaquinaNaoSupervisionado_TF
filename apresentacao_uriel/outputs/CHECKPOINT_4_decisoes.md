@@ -10,19 +10,25 @@
 
 ### Método do Cotovelo (Elbow Method)
 
-| K | WSS (Within-Sum-of-Squares) |
-|---|------------------------------|
-| 1 | 2108.00 |
-| 2 | **72.41** ⬇ **Queda abrupta** |
-| 3 | 58.25 |
-| 4 | 47.51 |
-| 5 | 39.63 |
-| ... | ... |
-| 10 | 24.89 |
+| K | WSS (Within-Sum-of-Squares) | Redução |
+|---|------------------------------|---------|
+| 1 | 6745.42 | - |
+| 2 | **1633.22** | **-75.8%** ⬇ |
+| 3 | 1331.66 | -18.5% |
+| 4 | 958.59 | -28.0% |
+| 5 | 729.25 | -23.9% |
+| 6 | 472.97 | -35.1% |
+| 7 | 391.20 | -17.3% |
+| 8 | 330.27 | -15.6% |
+| 9 | 296.34 | -10.3% |
+| 10 | 248.88 | -16.0% |
 
-**Cotovelo identificado em K = 2**
-- Queda dramática de WSS: 2108 → 72 (96.6% de redução!)
-- Após K=2, reduções são graduais
+**Análise do Cotovelo**:
+- K=1→K=2: Queda de **75.8%** (significativa)
+- K=2→K=3: Queda de 18.5%
+- K=3→K=4: Queda de **28.0%** (maior que K=2→K=3!)
+
+**Observação**: O cotovelo **não é dramaticamente claro** em K=2. K=3 e K=4 também apresentam reduções substanciais de WSS. O método do cotovelo **sozinho** não é conclusivo para escolher K=2.
 
 ### Coeficiente de Silhueta
 
@@ -50,11 +56,29 @@
 
 **K = 2 clusters**
 
-**Justificativas**:
-1. ✅ **Consenso entre critérios**: Cotovelo e Silhueta convergem para K=2
-2. ✅ **Silhueta excepcional**: 0.972 é extremamente alto (raro na prática)
-3. ✅ **Interpretabilidade clara**: 2 clusters refletem divisão natural do setor bancário
-4. ✅ **Parcimônia**: Simplicidade preferível quando adequada
+**Justificativas (por ordem de importância)**:
+
+1. ✅ **Silhueta excepcional** (critério DOMINANTE):
+   - K=2: 0.972 (extremamente raro na prática)
+   - K=3: 0.541 (queda de **44%**)
+   - K=4: 0.582
+   - Diferença entre K=2 e K=3 é dramática
+
+2. ✅ **Interpretabilidade clara**:
+   - K=2 separa perfeitamente Big 5 vs Demais
+   - Divisão economicamente significativa
+   - Alinhada com estrutura real do setor bancário
+
+3. ✅ **Parcimônia**:
+   - Modelo mais simples que captura a estrutura principal
+   - Princípio da navalha de Occam
+
+4. ⚠️ **Cotovelo moderado** (não é decisivo):
+   - Queda de 76% em K=2 (significativa, mas não extrema)
+   - K=3 e K=4 também têm reduções razoáveis
+   - Este critério sozinho não seria conclusivo
+
+**Peso da decisão**: Silhueta (70%) + Interpretação (20%) + Parcimônia (10%)
 
 ---
 
@@ -327,11 +351,14 @@ Estes 5 bancos:
 **K = 2** foi escolhido (menor que esperado)
 
 **Por que?**
-1. **Concentração extrema do setor**: Big 5 são tão dominantes que formam ilha isolada
-2. **PC1 explica 66%**: Dimensão de tamanho é tão dominante que ofusca subdivisões
-3. **Critérios objetivos** (cotovelo, silhueta) convergem para K=2
+1. **Silhueta excepcional em K=2**: 0.972 (vs 0.54 em K=3) - evidência irrefutável
+2. **Concentração extrema do setor**: Big 5 são tão dominantes que formam ilha isolada
+3. **PC1 explica 66%**: Dimensão de tamanho é tão dominante que ofusca subdivisões
+4. **Interpretação clara**: Big 5 vs Demais é economicamente significativo
 
-**Lição**: Dados reais podem ter estrutura mais simples (ou complexa) que expectativas teóricas. **Sempre priorizar evidência empírica sobre intuições**.
+**Nota**: O cotovelo não foi tão claro quanto esperado (K=3 e K=4 também tinham reduções razoáveis). A decisão foi dominada pela **silhueta excepcional**.
+
+**Lição**: Dados reais podem ter estrutura mais simples (ou complexa) que expectativas teóricas. **Sempre priorizar evidência empírica sobre intuições**. Nem todos os critérios convergem sempre - usar o mais robusto (silhueta neste caso).
 
 ---
 
@@ -341,11 +368,12 @@ Estes 5 bancos:
 
 **DECISÃO: K = 2**
 
-**Justificativa**:
-- Cotovelo dramático em K=2
-- Silhueta excepcional (0.972)
-- Interpretação econômica clara e robusta
-- Confirmado por método hierárquico
+**Justificativa (revisada)**:
+- **Silhueta excepcional** (0.972) - critério DOMINANTE
+- Queda de 44% na silhueta de K=2 para K=3 (0.972 → 0.541)
+- Interpretação econômica clara e robusta (Big 5 vs Demais)
+- Confirmado por método hierárquico (100% concordância ajustando rótulos)
+- Cotovelo moderado (76% redução WSS), mas não decisivo sozinho
 
 ### Interpretação dos Clusters
 
@@ -451,10 +479,11 @@ Estes 5 bancos:
 
 ### ✅ Sucessos
 
-- **Consenso de critérios**: Cotovelo, silhueta, hierárquico convergem para K=2
-- **Qualidade excepcional**: Silhueta 0.972 (muito raro)
+- **Silhueta excepcional**: 0.972 (muito raro, critério dominante)
 - **Validação perfeita**: Identificou Big 5 corretamente sem supervisão
+- **Confirmação hierárquica**: 100% concordância com K-Means
 - **Interpretação clara**: Oligopólio vs Cauda Longa
+- **Robustez**: Decisão não depende de um único critério (silhueta >> cotovelo)
 
 ### ⚠️ Limitações
 

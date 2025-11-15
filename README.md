@@ -124,16 +124,18 @@ source("apresentacao_uriel/df_banco.R")
 │   ├── 01_analise_descritiva.R            # Estatísticas e visualizações
 │   ├── 02_pca.R                           # Análise de Componentes Principais
 │   ├── 03_efa.R                           # Análise Fatorial Exploratória
-│   ├── 04_clustering.R                    # K-Means e Hierárquico (pendente)
+│   ├── 04_clustering.R                    # K-Means e Hierárquico
 │   ├── relatorio_final.Rmd                # Relatório completo (pendente)
 │   ├── apresentacao.Rmd                   # Slides apresentação (pendente)
 │   └── outputs/                           # Resultados das análises
 │       ├── 01_*.{csv,pdf}                 # Análise descritiva (9 arquivos)
 │       ├── 02_*.{csv,pdf}                 # PCA (7 arquivos)
 │       ├── 03_*.{csv,pdf}                 # EFA (8 arquivos)
+│       ├── 04_*.{csv,pdf}                 # Clustering (13 arquivos)
 │       ├── CHECKPOINT_1_decisoes.md       # Decisões: outliers, correlações
 │       ├── CHECKPOINT_2_decisoes.md       # Decisões: M componentes PCA
-│       └── CHECKPOINT_3_decisoes.md       # Decisões: m fatores, PCA vs EFA
+│       ├── CHECKPOINT_3_decisoes.md       # Decisões: m fatores, PCA vs EFA
+│       └── CHECKPOINT_4_decisoes.md       # Decisões: K clusters, validação
 ├── docs/
 │   └── plans/                             # Planos de implementação
 ├── DATA_SOURCE.md                         # Documentação da fonte de dados
@@ -171,3 +173,28 @@ source("apresentacao_uriel/df_banco.R")
 - **Diferença principal**: EFA separa infraestrutura física (F1) de resultado financeiro (F2); PCA combina em PC1
 - **Achado crítico**: Índices regulatórios têm variância ESPECÍFICA (h²≈0%), independente dos fatores comuns
 - **Implicação**: Risco/Solidez é ortogonal a Tamanho/Performance
+
+### Clustering (K-Means e Hierárquico)
+- **Clusters identificados**: K = 2 (escolha baseada em silhueta excepcional)
+- **Silhueta média**: 0.972 (extremamente raro, estrutura muito bem definida)
+- **Método do cotovelo**: Queda de 76% em K=2 (moderada, não decisiva)
+- **Critério dominante**: Silhueta (70% do peso da decisão)
+
+#### Cluster 1: "Cauda Longa do Setor" (N=1,050 - 99.5%)
+- Bancos pequenos, médios, regionais, cooperativas, fintechs
+- **Basileia médio**: 60% (bem capitalizados, 4x acima do mínimo)
+- **Imobilização**: 7% (infraestrutura enxuta)
+- **Agências médias**: 2.5
+
+#### Cluster 2: "Big Five" (N=5 - 0.5%)
+- **Bancos identificados**: BB, Bradesco, Caixa Econômica Federal, Itaú, Santander
+- **Escala**: 200-400x maior que Cluster 1 em todas as métricas
+- **Basileia médio**: 15% (próximo ao mínimo regulatório 10.5%)
+- **Imobilização**: 18% (infraestrutura física massiva)
+- **Agências médias**: 2,800 (vs 2.5 do Cluster 1)
+
+#### Validação
+- **K-Means vs Hierárquico**: 100% de concordância (após ajustar rótulos)
+- **Validação prática**: Perfeita - identificou os 5 maiores bancos do Brasil
+- **Interpretação econômica**: Oligopólio (~80% do mercado) vs Cauda Longa
+- **Achado principal**: Concentração extrema do setor bancário brasileiro

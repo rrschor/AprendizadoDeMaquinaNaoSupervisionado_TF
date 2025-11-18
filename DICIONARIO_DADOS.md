@@ -43,45 +43,56 @@
 - **Tipo**: Texto (código)
 - **Descrição**: Classificação do tipo de instituição
 - **Valores possíveis**:
-  - `b1`: Banco Múltiplo ou Comercial
-  - `b2`: Banco de Investimento
-  - `b3`: Banco de Desenvolvimento
-  - `cf`: Cooperativa de Crédito (Central ou Singular)
-  - Outros códigos para instituições não-bancárias
-- **Exemplos**: "b1" (maioria dos grandes bancos)
+  - `b1`: Banco Comercial, Banco Múltiplo com Carteira Comercial ou Caixas Econômicas
+  - `b2`: Banco Múltiplo sem Carteira Comercial ou Banco de Câmbio ou Banco de Investimento
+  - `b3S`: Cooperativa de Crédito Singular
+  - `b3C`: Central e Confederação de Cooperativas de Crédito
+  - `b4`: Banco de Desenvolvimento
+  - `n1`: Não bancário de Crédito
+  - `n2`: Não bancário do Mercado de Capitais
+  - `n4`: Instituições de Pagamento
+- **Exemplos**:
+  - "b1" (Itaú, Bradesco, BB, Caixa - maioria dos grandes bancos)
+  - "b3S" (cooperativas singulares)
+  - "n4" (fintechs, instituições de pagamento)
 - **Usado nas análises**: Não
 
 ---
 
 ### 4. SR (Segmento Regulatório)
 - **Tipo**: Texto (código)
-- **Descrição**: Segmento de supervisão do BCB (Framework de Supervisão Proporcional)
+- **Descrição**: Segmento de supervisão do BCB (Framework de Supervisão Proporcional - Resolução nº 4.553/2017)
 - **Valores possíveis**:
-  - `S1`: Segmento 1 (porte e importância muito elevados)
-  - `S2`: Segmento 2 (porte e importância elevados)
-  - `S3`: Segmento 3 (porte e importância médios)
-  - `S4`: Segmento 4 (porte e importância pequenos)
-  - `S5`: Segmento 5 (porte e importância muito pequenos)
+  - `S1`: Bancos múltiplos, bancos comerciais, bancos de investimento, bancos de câmbio e caixas econômicas que:
+    - (i) tenham porte (Exposição/PIB) superior a 10%; ou
+    - (ii) exerçam atividade internacional relevante (ativos no exterior > US$ 10 bilhões)
+  - `S2`:
+    - (i) Bancos múltiplos, bancos comerciais, bancos de investimento, bancos de câmbio e caixas econômicas de porte inferior a 10% e igual ou superior a 1%; e
+    - (ii) Demais instituições autorizadas a funcionar pelo BCB de porte igual ou superior a 1% do PIB
+  - `S3`: Instituições de porte inferior a 1% e igual ou superior a 0,1% do PIB
+  - `S4`: Instituições de porte inferior a 0,1% do PIB
+  - `S5`: Composto por:
+    - (i) Instituições de porte inferior a 0,1% que utilizem metodologia facultativa simplificada para apuração dos requerimentos mínimos de PR, exceto bancos múltiplos, bancos comerciais, bancos de investimento, bancos de câmbio e caixas econômicas; e
+    - (ii) Instituições não sujeitas a apuração de PR
 - **Exemplos**:
-  - "S1" (Itaú, BB, Caixa, Bradesco, Santander)
-  - "S4" ou "S5" (bancos pequenos e cooperativas)
-- **Observações**: Determina intensidade de supervisão pelo BCB
+  - "S1" (Itaú, BB, Caixa, Bradesco, Santander - porte > 10% PIB)
+  - "S4" ou "S5" (bancos pequenos e cooperativas - porte < 0,1% PIB)
+- **Observações**: Determina intensidade de supervisão e requisitos regulatórios pelo BCB
 - **Usado nas análises**: Não (mas poderia ser usado para estratificação)
 
 ---
 
-### 5. TD (Tipo de Domicílio)
+### 5. TD (Tipo de Consolidação)
 - **Tipo**: Texto (código)
-- **Descrição**: Origem do controle acionário
+- **Descrição**: Indica se os dados são de instituição individual ou conglomerado prudencial
 - **Valores possíveis**:
-  - `N`: Nacional (controle brasileiro)
-  - `E`: Estrangeiro (controle externo)
-  - `C`: Controle público (governo federal, estadual ou municipal)
+  - `I`: Instituição Independente (dados da instituição individualmente)
+  - `C`: Conglomerado (dados consolidados do conglomerado prudencial)
 - **Exemplos**:
-  - "C" (Banco do Brasil, Caixa - controle público)
-  - "N" (Itaú, Bradesco - controle privado nacional)
-  - "E" (Santander, Citibank - controle estrangeiro)
-- **Usado nas análises**: Não
+  - "C" (ITAU - PRUDENCIAL, BB - PRUDENCIAL, CAIXA - PRUDENCIAL - conglomerados consolidados)
+  - "I" (instituições individuais não parte de conglomerado ou reportadas separadamente)
+- **Observações**: Conglomerados prudenciais agregam múltiplas instituições do mesmo grupo econômico para fins de supervisão
+- **Usado nas análises**: Não (mas importante para entender a natureza dos dados)
 
 ---
 
@@ -137,6 +148,9 @@
 ### 10. Ativo Total
 - **Tipo**: Numérico (valores em R$ mil)
 - **Descrição**: Total de ativos da instituição (balanço patrimonial)
+- **Fórmula COSIF**: [1000000009] + [2000000008]
+  - [1000000009]: Ativo Circulante
+  - [2000000008]: Ativo Não Circulante
 - **Formato Original**: Brasileiro (ponto separador de milhar, sem decimais)
 - **Unidade**: Milhares de Reais (R$ mil)
 - **Exemplos**:
@@ -151,6 +165,12 @@
 ### 11. Carteira de Crédito
 - **Tipo**: Numérico (valores em R$ mil)
 - **Descrição**: Volume total de operações de crédito ativas (empréstimos e financiamentos)
+- **Fórmula COSIF**: [1600000007] + [1741000007] + [1810000000] + [1887900009] + [1899600005]
+  - [1600000007]: Operações de Crédito
+  - [1741000007]: Arrendamento Mercantil
+  - [1810000000]: Operações de Crédito - Exterior
+  - [1887900009]: Operações de Crédito - Outras
+  - [1899600005]: Provisões para Operações de Crédito (ajustes)
 - **Formato Original**: Brasileiro (ponto separador de milhar)
 - **Unidade**: Milhares de Reais (R$ mil)
 - **Exemplos**:
@@ -166,6 +186,9 @@
 ### 12. Títulos e Valores Mobiliários
 - **Tipo**: Numérico (valores em R$ mil)
 - **Descrição**: Investimentos em títulos públicos e privados, ações, fundos, etc.
+- **Fórmula COSIF**: [1300000008] - [1330000009]
+  - [1300000008]: Títulos e Valores Mobiliários e Instrumentos Financeiros Derivativos
+  - [1330000009]: Instrumentos Financeiros Derivativos (excluídos do total)
 - **Formato Original**: Brasileiro (ponto separador de milhar)
 - **Unidade**: Milhares de Reais (R$ mil)
 - **Exemplos**:
@@ -178,9 +201,11 @@
 ### 13. Passivo Exigível
 - **Tipo**: Numérico (valores em R$ mil)
 - **Descrição**: Total de obrigações da instituição (passivo circulante + não circulante)
+- **Fórmula COSIF**: [4000000006]
+  - [4000000006]: Passivo Exigível Total (Passivo Circulante + Passivo Não Circulante)
 - **Formato Original**: Brasileiro (ponto separador de milhar)
 - **Unidade**: Milhares de Reais (R$ mil)
-- **Relação**: Ativo Total ≈ Passivo Exigível + Patrimônio Líquido (equação contábil)
+- **Relação**: Ativo Total ≈ Passivo Exigível + Patrimônio Líquido (equação contábil fundamental)
 - **Usado nas análises**: ❌ **NÃO** (redundante com Ativo e Patrimônio)
 
 ---
@@ -188,11 +213,18 @@
 ### 14. Captações
 - **Tipo**: Numérico (valores em R$ mil)
 - **Descrição**: Total de recursos captados (depósitos à vista, a prazo, poupança, etc.)
+- **Fórmula COSIF**: [4100000009] + [4200000002] + [4300000005] - [4391000007] - [4392000006] + [4600000004]
+  - [4100000009]: Depósitos à Vista
+  - [4200000002]: Depósitos de Poupança
+  - [4300000005]: Depósitos a Prazo
+  - [4391000007]: (-) Depósitos de Instituições Financeiras (dedução)
+  - [4392000006]: (-) Depósitos de Instituições Oficiais (dedução)
+  - [4600000004]: Captações no Mercado Aberto
 - **Formato Original**: Brasileiro (ponto separador de milhar)
 - **Unidade**: Milhares de Reais (R$ mil)
 - **Exemplos**:
   - 1.904.144.152 (Itaú - R$ 1,9 trilhão em depósitos)
-- **Observações**: Subconjunto do Passivo Exigível
+- **Observações**: Subconjunto do Passivo Exigível (representa a principal fonte de funding dos bancos)
 - **Usado nas análises**: ❌ **NÃO** (alta correlação com Ativo)
 
 ---
@@ -200,13 +232,17 @@
 ### 15. Patrimônio Líquido
 - **Tipo**: Numérico (valores em R$ mil)
 - **Descrição**: Capital próprio da instituição (Ativo - Passivo)
+- **Fórmula COSIF**: [6000000004] + [7000000003] + [8000000002]
+  - [6000000004]: Patrimônio Líquido (conta principal)
+  - [7000000003]: Resultado de Exercícios Futuros
+  - [8000000002]: Lucros/Prejuízos Acumulados
 - **Formato Original**: Brasileiro (ponto separador de milhar)
 - **Unidade**: Milhares de Reais (R$ mil)
 - **Exemplos**:
   - 204.014.774 (Itaú - R$ 204 bilhões)
   - 64.043 (mediana - R$ 64 milhões)
 - **Range observado**: -646 (patrimônio negativo!) a 204.014.774
-- **Valores negativos**: Indicam instituições em dificuldade (passivo > ativo)
+- **Valores negativos**: Indicam instituições em dificuldade (passivo > ativo, passivo a descoberto)
 - **Usado nas análises**: ✅ **SIM**
 - **Transformação**: Conversão + padronização
 
@@ -215,13 +251,16 @@
 ### 16. Lucro Líquido
 - **Tipo**: Numérico (valores em R$ mil)
 - **Descrição**: Resultado líquido do período (trimestre)
+- **Fórmula COSIF**: [7000000003] + [8000000002]
+  - [7000000003]: Resultado de Exercícios Futuros
+  - [8000000002]: Lucros ou Prejuízos Acumulados
 - **Formato Original**: Brasileiro (ponto separador de milhar)
 - **Unidade**: Milhares de Reais (R$ mil)
 - **Exemplos**:
   - 11.133.252 (Itaú - R$ 11,1 bilhões de lucro trimestral)
   - 1.420 (mediana - R$ 1,4 milhão)
 - **Range observado**: -134.669 (prejuízo) a 11.133.252
-- **Valores negativos**: Prejuízo (legítimo)
+- **Valores negativos**: Prejuízo no período (legítimo)
 - **Usado nas análises**: ✅ **SIM**
 - **Transformação**: Conversão + padronização
 
@@ -286,7 +325,8 @@
 
 ### 20. Número de Agências
 - **Tipo**: Numérico (inteiro)
-- **Descrição**: Quantidade de agências bancárias físicas da instituição
+- **Descrição**: Quantidade de agências bancárias físicas da instituição, incluídas as sedes (exceto para cooperativas)
+- **Fonte**: Dados operacionais reportados ao BCB (não é conta COSIF)
 - **Formato Original**: Número inteiro separado por ponto (milhar)
 - **Exemplos**:
   - 1.990 (Itaú)
@@ -302,6 +342,7 @@
   - 1-100: Banco regional ou rede pequena
   - 100-1000: Grande rede regional/nacional
   - > 1000: Mega rede nacional (BB, Caixa, Bradesco)
+- **Observações**: Para cooperativas, o critério de contagem pode diferir (excluídas as sedes administrativas)
 - **Usado nas análises**: ✅ **SIM** (indicador de presença física/infraestrutura)
 - **Transformação**: Conversão + padronização
 
@@ -310,8 +351,9 @@
 ### 21. Número de Postos de Atendimento
 - **Tipo**: Numérico (inteiro)
 - **Descrição**: Quantidade de postos de atendimento (PAB, PAE, PAA, etc.) além de agências
+- **Fonte**: Dados operacionais reportados ao BCB (não é conta COSIF)
 - **Formato Original**: Número inteiro separado por ponto (milhar)
-- **Definição BCB**:
+- **Definição BCB** (tipos de postos incluídos):
   - **PAB**: Posto de Atendimento Bancário (dentro de empresa, shopping, etc.)
   - **PAE**: Posto de Atendimento Eletrônico (caixas automáticos)
   - **PAA**: Posto de Atendimento Avançado (áreas de difícil acesso)
